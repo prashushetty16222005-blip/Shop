@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Mobile POS Billing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --accent: #16a34a;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans Kannada', 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Compact Mobile Header */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .brand-name {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .lang-select {
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      outline: none;
+    }
+
+    /* Product Scroll Area */
+    .mobile-workspace {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      padding-bottom: 90px;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .search-field {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: #fff;
+      outline: none;
+    }
+
+    .search-field:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-add-custom {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 0 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    /* Responsive 2-Column Mobile Grid */
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .item-card:active {
+      transform: scale(0.98);
+    }
+
+    .item-photo-wrap {
+      width: 100%;
+      height: 105px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 1px solid #f1f5f9;
+      padding: 4px;
+    }
+
+    .item-photo {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .badge-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 800;
+      border-radius: 6px;
+    }
+
+    .category-label {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .item-info {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .item-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-rate {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .btn-push-cart {
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 6px 0;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    /* Bottom Fixed Cart Bar */
+    .mobile-cart-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      z-index: 30;
+    }
+
+    .cart-summary-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-total-tag {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .cart-items-tag {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .btn-view-bill {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Cart Drawer Modal */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: flex-end;
+      z-index: 50;
+    }
+
+    .cart-drawer {
+      background: #ffffff;
+      width: 100%;
+      max-height: 80vh;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .drawer-header {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer-header h3 {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .btn-drawer-clear {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .drawer-items {
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .drawer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .drawer-row-desc {
+      display: flex;
+      flex-direction: column;
+      max-width: 130px;
+    }
+
+    .drawer-row-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .drawer-row-rate {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .qty-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-step {
+      width: 28px;
+      height: 28px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .step-val {
+      font-size: 0.9rem;
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .drawer-row-total {
+      font-size: 0.9rem;
+      font-weight: 800;
+      min-width: 45px;
+      text-align: right;
+    }
+
+    .drawer-footer {
+      padding: 14px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cash-calc-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .cash-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .change-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .drawer-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-close-drawer {
+      background: #e2e8f0;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-finalize-bill {
+      flex: 1;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Modal Form / Receipt System */
+    .modal-shade {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 14px;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 340px;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .form-ctrl {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .receipt-header {
+      text-align: center;
+      border-bottom: 1px dashed #cbd5e1;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .receipt-tbl {
+      width: 100%;
+      font-size: 0.82rem;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+    }
+
+    .receipt-tbl th {
+      border-bottom: 1px solid var(--border);
+      padding: 3px 0;
+      text-align: left;
+    }
+
+    .receipt-tbl td {
+      padding: 4px 0;
+    }
+
+    .receipt-foot {
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 6px;
+      font-size: 0.85rem;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-modal-primary {
+      flex: 1;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-modal-cancel {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .modal-card.receipt-print, .modal-card.receipt-print * {
+        visibility: visible;
+      }
+      .modal-card.receipt-print {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none;
+        padding: 0;
+      }
+      .modal-btns {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-section">
+      <div class="brand-icon">₹</div>
+      <div class="brand-name" id="uiBrandName">Billing POS</div>
+    </div>
+    <select class="lang-select" id="langSelect" onchange="switchLanguage(this.value)">
+      <option value="en">English</option>
+      <option value="kn">ಕನ್ನಡ</option>
+    </select>
+  </header>
+
+  <main class="mobile-workspace">
+    <div class="controls-row">
+      <input type="text" id="searchInput" class="search-field" placeholder="🔍 Search item..." oninput="handleFilter()" />
+      <button class="btn-add-custom" onclick="openNewModal()" id="uiAddCustomBtn">
+        <span>➕</span> Add
+      </button>
+    </div>
+    <div class="catalog-grid" id="catalogGrid"></div>
+  </main>
+
+  <div class="mobile-cart-bar">
+    <div class="cart-summary-text">
+      <span class="cart-total-tag" id="barTotal">₹0</span>
+      <span class="cart-items-tag"><span id="barItemCount">0</span> <span id="uiBarItemsLabel">items</span></span>
+    </div>
+    <button class="btn-view-bill" onclick="openDrawer()" id="uiViewBillBtn">View Bill 🛒</button>
+  </div>
+
+  <div class="drawer-overlay" id="cartDrawerOverlay">
+    <div class="cart-drawer">
+      <div class="drawer-header">
+        <h3 id="uiDrawerTitle">Current Order</h3>
+        <button class="btn-drawer-clear" onclick="clearCart()" id="uiDrawerClear">Clear All</button>
+      </div>
+
+      <div class="drawer-items" id="drawerItemsList"></div>
+
+      <div class="drawer-footer">
+        <div class="cash-calc-row">
+          <input type="number" id="cashInput" class="cash-input" placeholder="Cash Given (₹)" oninput="updateChangeCalc()" />
+          <span class="change-text" id="drawerChangeText">Change: ₹0</span>
+        </div>
+        <div class="drawer-actions">
+          <button class="btn-close-drawer" onclick="closeDrawer()" id="uiCloseDrawer">Close</button>
+          <button class="btn-finalize-bill" onclick="triggerReceipt()" id="uiPrintBillAction">Print Bill (₹<span id="drawerTotalText">0</span>)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-shade" id="customModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1rem; margin-bottom: 10px;" id="uiCustomTitle">Add Custom Item</h3>
+      <div class="form-group">
+        <label id="uiLblNameEn">Item Name (English) *</label>
+        <input type="text" id="itemNameEn" class="form-ctrl" placeholder="e.g. Vimal" required />
+      </div>
+      <div class="form-group">
+        <label id="uiLblNameKn">Item Name (ಕನ್ನಡ)</label>
+        <input type="text" id="itemNameKn" class="form-ctrl" placeholder="ಉದಾ: ವಿಮಲ್" />
+      </div>
+      <div class="form-group">
+        <label id="uiLblPrice">Price (₹) *</label>
+        <input type="number" id="itemPrice" class="form-ctrl" placeholder="e.g. 50" required />
+      </div>
+      <div class="form-group">
+        <label id="uiLblCategory">Category</label>
+        <input type="text" id="itemCategory" class="form-ctrl" placeholder="Paan Masala, Cigarette" />
+      </div>
+      <div class="form-group">
+        <label id="uiLblPhoto">Select Image</label>
+        <input type="file" id="itemPhotoFile" accept="image/*" class="form-ctrl" style="padding: 4px;" />
+      </div>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeNewModal()" id="uiBtnCancel">Cancel</button>
+        <button class="btn-modal-primary" onclick="submitCustomItem()" id="uiBtnSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-shade" id="receiptModal">
+    <div class="modal-card receipt-print">
+      <div class="receipt-header">
+        <h3 style="font-size: 1rem; font-weight: 800;" id="uiShopHeader">RETAIL STORE</h3>
+        <p style="font-size: 0.72rem; color: var(--muted);" id="uiMemoHeader">Tax Invoice / Cash Memo</p>
+        <p style="font-size: 0.7rem; color: var(--muted);" id="invoiceClock"></p>
+      </div>
+      <table class="receipt-tbl">
+        <thead>
+          <tr>
+            <th id="uiThItem">Item</th>
+            <th style="text-align: center;" id="uiThQty">Qty</th>
+            <th style="text-align: right;" id="uiThPrice">Price</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceRows"></tbody>
+      </table>
+      <div class="receipt-foot">
+        <div style="display: flex; justify-content: space-between; font-weight: 800;">
+          <span id="uiReceiptTotalLabel">Total Payable:</span>
+          <span id="invoiceFinalTotal">₹0</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 2px;">
+          <span id="uiReceiptPaidLabel">Cash Paid:</span>
+          <span id="invoiceCashPaid">₹0</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted);">
+          <span id="uiReceiptDueLabel">Change Returned:</span>
+          <span id="invoiceChangeReturned">₹0</span>
+        </div>
+        <p style="text-align: center; font-size: 0.75rem; margin-top: 10px; color: #16a34a; font-weight: 700;" id="uiThanksNote">Thank you! Visit again.</p>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeReceiptModal()" id="uiCloseBtn">Close</button>
+        <button class="btn-modal-primary" onclick="window.print()" id="uiPrintBtn">🖨️ Print</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dictionary = {
+      en: {
+        brand: "Billing POS",
+        search: "🔍 Search item...",
+        add: "➕ Add",
+        barItems: "items",
+        viewBill: "View Bill 🛒",
+        drawerTitle: "Current Order",
+        clear: "Clear",
+        empty: "No items added yet.<br>Tap items to add.",
+        cashPlaceholder: "Cash Given (₹)",
+        changeText: "Change: ₹0",
+        changePrefix: "Change: ₹",
+        duePrefix: "Due: ₹",
+        printBill: "Print Bill",
+        addBtn: "+ Add",
+        customTitle: "Add Custom Item",
+        lblNameEn: "Item Name (English) *",
+        lblNameKn: "Item Name (ಕನ್ನಡ)",
+        lblPrice: "Price (₹) *",
+        lblCat: "Category",
+        lblPhoto: "Select Image",
+        btnCancel: "Cancel",
+        btnSave: "Save",
+        shopName: "RETAIL STORE",
+        invoiceMemo: "Tax Invoice / Cash Memo",
+        thItem: "Item",
+        thQty: "Qty",
+        thPrice: "Price",
+        recTotal: "Total Payable:",
+        recPaid: "Cash Paid:",
+        recDue: "Change Returned:",
+        thanks: "Thank you! Visit again.",
+        close: "Close",
+        print: "🖨️ Print"
+      },
+      kn: {
+        brand: "ಬಿಲ್ಲಿಂಗ್ POS",
+        search: "🔍 ಐಟಂ ಹುಡುಕಿ...",
+        add: "➕ ಸೇರಿಸಿ",
+        barItems: "ಐಟಂಗಳು",
+        viewBill: "ಬಿಲ್ ನೋಡಿ 🛒",
+        drawerTitle: "ಪ್ರಸ್ತುತ ಆರ್ಡರ್",
+        clear: "ಅಳಿಸು",
+        empty: "ಯಾವುದೇ ಐಟಂ ಸೇರಿಸಲಾಗಿಲ್ಲ.<br>ಐಟಂ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ.",
+        cashPlaceholder: "ಗ್ರಾಹಕರು ನೀಡಿದ ಹಣ (₹)",
+        changeText: "ಬಾಕಿ: ₹0",
+        changePrefix: "ಬಾಕಿ: ₹",
+        duePrefix: "ಉಳಿಕೆ: ₹",
+        printBill: "ಬಿಲ್ ಮುದ್ರಿಸಿ",
+        addBtn: "+ ಸೇರಿಸಿ",
+        customTitle: "ಹೊಸ ಐಟಂ ಸೇರಿಸಿ",
+        lblNameEn: "ಐಟಂ ಹೆಸರು (ಇಂಗ್ಲಿಷ್) *",
+        lblNameKn: "ಐಟಂ ಹೆಸರು (ಕನ್ನಡ)",
+        lblPrice: "ಬೆಲೆ (₹) *",
+        lblCat: "ವಿಭಾಗ",
+        lblPhoto: "ಫೋಟೋ ಆಯ್ಕೆಮಾಡಿ",
+        btnCancel: "ರದ್ದು",
+        btnSave: "ಉಳಿಸಿ",
+        shopName: "ಶ್ರೀ ಚಿಲ್ಲರೆ ವ್ಯಾಪಾರ ಮಳಿಗೆ",
+        invoiceMemo: "ಖರೀದಿ ರಶೀದಿ / ಕ್ಯಾಶ್ ಮೆಮೊ",
+        thItem: "ಐಟಂ",
+        thQty: "ಪ್ರಮಾಣ",
+        thPrice: "ಬೆಲೆ",
+        recTotal: "ಒಟ್ಟು ಪಾವತಿ:",
+        recPaid: "ಸ್ವೀಕರಿಸಿದ ನಗದು:",
+        recDue: "ಮರಳಿಸಿದ ಬಾಕಿ:",
+        thanks: "ಧನ್ಯವಾದಗಳು! ಮತ್ತೆ ಬನ್ನಿ.",
+        close: "ಮುಚ್ಚು",
+        print: "🖨️ ಪ್ರಿಂಟ್"
+      }
+    };
+
+    const initialItems = [
+      { id: 1, nameEn: "Vimal", nameKn: "ವಿಮಲ್", cost: 123, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", img: "images/vimal.jpg", color: "#d97706" },
+      { id: 2, nameEn: "Hira", nameKn: "ಹೀರಾ", cost: 175, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", img: "images/hira.jpg", color: "#dc2626" },
+      { id: 3, nameEn: "Kashisah", nameKn: "ಕಶಿಶ್", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", img: "images/kashish.jpg", color: "#7c3aed" },
+      { id: 4, nameEn: "Kashish (2)", nameKn: "ಕಶಿಶ್ (೨)", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", img: "images/kashish2.jpg", color: "#4f46e5" },
+      { id: 5, nameEn: "Hello", nameKn: "ಹೆಲೋ", cost: 35, catEn: "Tobacco", catKn: "ತಂಬಾಕು", img: "images/hello.jpg", color: "#db2777" },
+      { id: 6, nameEn: "Gold", nameKn: "ಗೋಲ್ಡ್", cost: 120, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", img: "images/gold.jpg", color: "#ca8a04" },
+      { id: 7, nameEn: "King", nameKn: "ಕಿಂಗ್ಸ್", cost: 223, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", img: "images/king.jpg", color: "#0284c7" },
+      { id: 8, nameEn: "Light King", nameKn: "ಲೈಟ್ ಕಿಂಗ್", cost: 223, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", img: "images/light-king.jpg", color: "#0d9488" }
+    ];
+
+    let inventory = JSON.parse(localStorage.getItem("pos_stock_phone")) || initialItems;
+    let activeLang = "en";
+    let cart = {};
+
+    function persistStock() {
+      localStorage.setItem("pos_stock_phone", JSON.stringify(inventory));
+    }
+
+    function switchLanguage(lang) {
+      activeLang = lang;
+      const t = dictionary[lang];
+
+      document.getElementById("uiBrandName").innerText = t.brand;
+      document.getElementById("searchInput").placeholder = t.search;
+      document.getElementById("uiAddCustomBtn").innerHTML = `<span>➕</span> ${t.add}`;
+      document.getElementById("uiBarItemsLabel").innerText = t.barItems;
+      document.getElementById("uiViewBillBtn").innerText = t.viewBill;
+      document.getElementById("uiDrawerTitle").innerText = t.drawerTitle;
+      document.getElementById("uiDrawerClear").innerText = t.clear;
+      document.getElementById("cashInput").placeholder = t.cashPlaceholder;
+
+      document.getElementById("uiCustomTitle").innerText = t.customTitle;
+      document.getElementById("uiLblNameEn").innerText = t.lblNameEn;
+      document.getElementById("uiLblNameKn").innerText = t.lblNameKn;
+      document.getElementById("uiLblPrice").innerText = t.lblPrice;
+      document.getElementById("uiLblCategory").innerText = t.lblCat;
+      document.getElementById("uiLblPhoto").innerText = t.lblPhoto;
+      document.getElementById("uiBtnCancel").innerText = t.btnCancel;
+      document.getElementById("uiBtnSave").innerText = t.btnSave;
+
+      document.getElementById("uiShopHeader").innerText = t.shopName;
+      document.getElementById("uiMemoHeader").innerText = t.invoiceMemo;
+      document.getElementById("uiThItem").innerText = t.thItem;
+      document.getElementById("uiThQty").innerText = t.thQty;
+      document.getElementById("uiThPrice").innerText = t.thPrice;
+      document.getElementById("uiReceiptTotalLabel").innerText = t.recTotal;
+      document.getElementById("uiReceiptPaidLabel").innerText = t.recPaid;
+      document.getElementById("uiReceiptDueLabel").innerText = t.recDue;
+      document.getElementById("uiThanksNote").innerText = t.thanks;
+      document.getElementById("uiCloseBtn").innerText = t.close;
+      document.getElementById("uiPrintBtn").innerText = t.print;
+
+      renderItems(inventory);
+      renderCart();
+    }
+
+    function localizedTitle(item) {
+      return (activeLang === 'kn' && item.nameKn) ? item.nameKn : item.nameEn;
+    }
+
+    function localizedCategory(item) {
+      return (activeLang === 'kn' && item.catKn) ? item.catKn : item.catEn;
+    }
+
+    function renderItems(list) {
+      const grid = document.getElementById("catalogGrid");
+      const t = dictionary[activeLang];
+
+      if (list.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; color: var(--muted); text-align:center; padding: 20px;">No items found.</p>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div class="item-card" onclick="pushToCart(${item.id})">
+          <div class="item-photo-wrap">
+            <span class="category-label">${localizedCategory(item)}</span>
+            ${item.img ? `
+              <img 
+                src="${item.img}" 
+                alt="${item.nameEn}" 
+                class="item-photo" 
+                loading="lazy" 
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+              />
+              <div class="badge-fallback" style="display:none; background:${item.color || '#1e3a8a'};">
+                ${item.nameEn.charAt(0).toUpperCase()}
+              </div>
+            ` : `
+              <div class="badge-fallback" style="background:${item.color || '#1e3a8a'};">
+                ${item.nameEn.charAt(0).toUpperCase()}
+              </div>
+            `}
+          </div>
+          <div class="item-info">
+            <div class="item-title">${localizedTitle(item)}</div>
+            <div class="item-rate">₹${item.cost}</div>
+            <button class="btn-push-cart" type="button" onclick="event.stopPropagation(); pushToCart(${item.id})">
+              ${t.addBtn}
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function handleFilter() {
+      const q = document.getElementById("searchInput").value.toLowerCase().trim();
+      const filtered = inventory.filter(i => 
+        (i.nameEn && i.nameEn.toLowerCase().includes(q)) || 
+        (i.nameKn && i.nameKn.includes(q)) ||
+        (i.catEn && i.catEn.toLowerCase().includes(q)) ||
+        (i.catKn && i.catKn.includes(q))
+      );
+      renderItems(filtered);
+    }
+
+    function pushToCart(id) {
+      if (cart[id]) {
+        cart[id].qty += 1;
+      } else {
+        const product = inventory.find(i => i.id === id);
+        if (product) cart[id] = { ...product, qty: 1 };
+      }
+      renderCart();
+    }
+
+    function shiftQuantity(id, delta) {
+      if (!cart[id]) return;
+      cart[id].qty += delta;
+      if (cart[id].qty <= 0) delete cart[id];
+      renderCart();
+    }
+
+    function clearCart() {
+      cart = {};
+      const cashBox = document.getElementById("cashInput");
+      if (cashBox) cashBox.value = "";
+      renderCart();
+      closeDrawer();
+    }
+
+    function renderCart() {
+      const container = document.getElementById("drawerItemsList");
+      const t = dictionary[activeLang];
+      const keys = Object.keys(cart);
+      let count = 0;
+      let total = 0;
+
+      if (keys.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--muted); padding: 30px 10px; font-size: 0.9rem;">
+            🛒<br>${t.empty}
+          </div>
+        `;
+      } else {
+        container.innerHTML = keys.map(k => {
+          const item = cart[k];
+          const lineSum = item.qty * item.cost;
+          count += item.qty;
+          total += lineSum;
+          return `
+            <div class="drawer-row">
+              <div class="drawer-row-desc">
+                <span class="drawer-row-name">${localizedTitle(item)}</span>
+                <span class="drawer-row-rate">₹${item.cost}</span>
+              </div>
+              <div class="qty-bar">
+                <button class="btn-step" type="button" onclick="shiftQuantity(${item.id}, -1)">-</button>
+                <span class="step-val">${item.qty}</span>
+                <button class="btn-step" type="button" onclick="shiftQuantity(${item.id}, 1)">+</button>
+              </div>
+              <div class="drawer-row-total">₹${lineSum}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      document.getElementById("barTotal").innerText = `₹${total}`;
+      document.getElementById("barItemCount").innerText = count;
+      document.getElementById("drawerTotalText").innerText = total;
+      updateChangeCalc();
+    }
+
+    function updateChangeCalc() {
+      const t = dictionary[activeLang];
+      const total = parseFloat(document.getElementById("drawerTotalText").innerText) || 0;
+      const cash = parseFloat(document.getElementById("cashInput").value) || 0;
+      const tag = document.getElementById("drawerChangeText");
+
+      if (cash >= total && total > 0) {
+        tag.innerText = `${t.changePrefix}${(cash - total).toFixed(2)}`;
+        tag.style.color = "var(--accent)";
+      } else if (cash > 0) {
+        tag.innerText = `${t.duePrefix}${(total - cash).toFixed(2)}`;
+        tag.style.color = "var(--danger)";
+      } else {
+        tag.innerText = t.changeText;
+        tag.style.color = "var(--muted)";
+      }
+    }
+
+    function openDrawer() {
+      document.getElementById("cartDrawerOverlay").style.display = "flex";
+    }
+
+    function closeDrawer() {
+      document.getElementById("cartDrawerOverlay").style.display = "none";
+    }
+
+    function openNewModal() {
+      document.getElementById("customModal").style.display = "flex";
+    }
+
+    function closeNewModal() {
+      document.getElementById("customModal").style.display = "none";
+      document.getElementById("itemNameEn").value = "";
+      document.getElementById("itemNameKn").value = "";
+      document.getElementById("itemPrice").value = "";
+      document.getElementById("itemCategory").value = "";
+      document.getElementById("itemPhotoFile").value = "";
+    }
+
+    function submitCustomItem() {
+      const nameEn = document.getElementById("itemNameEn").value.trim();
+      const nameKn = document.getElementById("itemNameKn").value.trim() || nameEn;
+      const price = parseFloat(document.getElementById("itemPrice").value);
+      const cat = document.getElementById("itemCategory").value.trim() || "General";
+      const file = document.getElementById("itemPhotoFile");
+
+      if (!nameEn || isNaN(price) || price <= 0) {
+        alert(activeLang === 'kn' ? "ಸರಿಯಾದ ಹೆಸರು ಮತ್ತು ಬೆಲೆ ನಮೂದಿಸಿ." : "Enter valid name and price.");
+        return;
+      }
+
+      const tints = ["#2563eb", "#16a34a", "#d97706", "#dc2626", "#7c3aed", "#0891b2"];
+      const randTint = tints[Math.floor(Math.random() * tints.length)];
+
+      const injectItem = (imgPayload) => {
+        const itemObj = {
+          id: Date.now(),
+          nameEn: nameEn,
+          nameKn: nameKn,
+          cost: price,
+          catEn: cat,
+          catKn: cat,
+          img: imgPayload || "",
+          color: randTint
+        };
+        inventory.unshift(itemObj);
+        persistStock();
+        renderItems(inventory);
+        closeNewModal();
+      };
+
+      if (file.files && file.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => injectItem(e.target.result);
+        reader.readAsDataURL(file.files[0]);
+      } else {
+        injectItem("");
+      }
+    }
+
+    function triggerReceipt() {
+      const keys = Object.keys(cart);
+      if (keys.length === 0) {
+        alert(activeLang === 'kn' ? "ಬಿಲ್ ಮಾಡಲು ಐಟಂ ಸೇರಿಸಿ." : "Add items to generate bill.");
+        return;
+      }
+
+      let grandTotal = 0;
+      document.getElementById("invoiceRows").innerHTML = keys.map(k => {
+        const item = cart[k];
+        const lineTotal = item.qty * item.cost;
+        grandTotal += lineTotal;
+        return `
+          <tr>
+            <td>${localizedTitle(item)}</td>
+            <td style="text-align: center;">${item.qty}</td>
+            <td style="text-align: right;">₹${lineTotal}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const paid = parseFloat(document.getElementById("cashInput").value) || grandTotal;
+      const change = Math.max(0, paid - grandTotal);
+
+      document.getElementById("invoiceClock").innerText = new Date().toLocaleString(activeLang === 'kn' ? 'kn-IN' : 'en-IN');
+      document.getElementById("invoiceFinalTotal").innerText = `₹${grandTotal}`;
+      document.getElementById("invoiceCashPaid").innerText = `₹${paid}`;
+      document.getElementById("invoiceChangeReturned").innerText = `₹${change}`;
+      closeDrawer();
+      document.getElementById("receiptModal").style.display = "flex";
+    }
+
+    function closeReceiptModal() {
+      document.getElementById("receiptModal").style.display = "none";
+      clearCart();
+    }
+
+    renderItems(inventory);
+    renderCart();
+  </script>
+</body>
+</html>
