@@ -2,1063 +2,887 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Mobile POS Billing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Premium POS App</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --primary: #1e3a8a;
-      --accent: #16a34a;
-      --danger: #dc2626;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
+      --bg-color: #f3f4f8;
+      --surface: #ffffff;
+      --primary: #4f46e5;
+      --primary-glow: rgba(79, 70, 229, 0.25);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --danger: #f43f5e;
+      --warning: #f59e0b;
+      --warning-bg: #fffbeb;
+      --text-main: #0f172a;
+      --text-soft: #64748b;
       --border: #e2e8f0;
-      --radius: 12px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 28px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Noto Sans Kannada', 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Outfit', 'Noto Sans Kannada', sans-serif;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg-color);
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 
-    /* Compact Mobile Header */
+    /* Glassmorphic Header */
     header {
-      background: #ffffff;
-      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
       padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 40;
     }
 
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .brand { display: flex; align-items: center; gap: 8px; }
     .brand-icon {
-      background: var(--primary);
-      color: #fff;
-      font-weight: 800;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--primary), #818cf8); color: #fff;
+      font-weight: 800; width: 34px; height: 34px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    .brand-title { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
+
+    .lang-toggle {
+      background: #f1f5f9; color: var(--primary); border: none; padding: 6px 10px;
+      border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer;
     }
 
-    .brand-name {
-      font-size: 1rem;
-      font-weight: 800;
+    /* Main Scroll Workspace */
+    .workspace {
+      flex: 1; overflow-y: auto; padding: 12px; padding-bottom: 120px;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .lang-select {
-      border: 1px solid var(--border);
-      background: #f8fafc;
-      padding: 5px 8px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--primary);
-      outline: none;
+    .search-row {
+      display: flex; gap: 8px; margin-bottom: 12px; position: sticky; top: 0;
+      z-index: 10; background: var(--bg-color); padding-bottom: 6px;
     }
 
-    /* Product Scroll Area */
-    .mobile-workspace {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      padding-bottom: 90px;
+    .search-bar {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.9rem;
+      outline: none; box-shadow: 0 2px 10px rgba(0,0,0,0.02); user-select: text;
+    }
+    .search-bar:focus { border-color: var(--primary); }
+
+    .btn-add-item {
+      background: var(--primary); color: #fff; border: none; padding: 0 14px;
+      border-radius: var(--radius-sm); font-weight: 800; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 15px var(--primary-glow);
     }
 
-    .controls-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .search-field {
-      flex: 1;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      background: #fff;
-      outline: none;
-    }
-
-    .search-field:focus {
-      border-color: var(--primary);
-    }
-
-    .btn-add-custom {
-      background: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 0 12px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-
-    /* Responsive 2-Column Mobile Grid */
-    .catalog-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+    /* 2 Items in a Row Fixed Grid */
+    .grid {
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); /* FORCES 2 COLUMNS */
       gap: 10px;
     }
 
-    .item-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-      position: relative;
+    .card {
+      background: var(--surface); border-radius: var(--radius-md); padding: 8px;
+      display: flex; flex-direction: column; position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border);
     }
 
-    .item-card:active {
-      transform: scale(0.98);
+    /* Highly Visible Edit Button */
+    .edit-pill {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(255, 255, 255, 0.95); border: 1px solid var(--border);
+      padding: 3px 6px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;
+      color: var(--primary); z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      display: flex; align-items: center; gap: 3px; cursor: pointer;
     }
 
-    .item-photo-wrap {
-      width: 100%;
-      height: 105px;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      border-bottom: 1px solid #f1f5f9;
-      padding: 4px;
+    .card-img-wrap {
+      width: 100%; height: 85px; background: #f8fafc; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; position: relative;
+      overflow: hidden; margin-bottom: 8px; cursor: pointer;
     }
 
-    .item-photo {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+    .card-img { max-width: 90%; max-height: 90%; object-fit: contain; }
+    .fallback-gradient {
+      width: 100%; height: 100%; display: flex; align-items: center;
+      justify-content: center; color: #fff; font-size: 2rem; font-weight: 800;
     }
 
-    .badge-fallback {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.8rem;
-      font-weight: 800;
-      border-radius: 6px;
+    .cat-tag {
+      position: absolute; top: 4px; left: 4px; background: rgba(255,255,255,0.95);
+      color: var(--text-main); font-size: 0.6rem; padding: 2px 5px;
+      border-radius: 4px; font-weight: 800; z-index: 2;
     }
 
-    .category-label {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      background: rgba(15, 23, 42, 0.8);
-      color: #fff;
-      font-size: 0.6rem;
-      padding: 2px 5px;
-      border-radius: 4px;
-      font-weight: 600;
+    .card-title {
+      font-size: 0.85rem; font-weight: 800; line-height: 1.2; margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    .item-info {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    /* Separate Full & Half Variant Rows */
+    .variant-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #f8fafc; padding: 5px 6px; border-radius: 8px; margin-bottom: 5px;
+      border: 1px solid #f1f5f9; cursor: pointer;
+    }
+    .variant-row.half-variant {
+      background: var(--warning-bg); border-color: #fde68a; margin-bottom: 0;
     }
 
-    .item-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.2;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .variant-label { display: flex; flex-direction: column; }
+    .v-title { font-size: 0.6rem; font-weight: 700; color: var(--text-soft); text-transform: uppercase; }
+    .v-price { font-size: 1rem; font-weight: 800; color: var(--primary); }
+    .half-variant .v-price { color: var(--warning); }
+    .half-variant .v-title { color: #b45309; }
+
+    /* Stepper Styling */
+    .btn-stepper {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; height: 30px; border: none; cursor: pointer;
     }
 
-    .item-rate {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--primary);
+    .btn-stepper.add {
+      background: var(--primary); color: #fff; width: 42px; font-size: 0.8rem; font-weight: 800;
+    }
+    .half-variant .btn-stepper.add { background: var(--warning); }
+
+    .btn-stepper.active-step {
+      width: 82px; justify-content: space-between; padding: 0; background: var(--surface);
+      border: 1px solid var(--primary); box-shadow: 0 2px 8px var(--primary-glow);
+    }
+    .half-variant .btn-stepper.active-step { border-color: var(--warning); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2); }
+
+    .step-icon {
+      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; font-weight: 800; color: var(--text-main); font-size: 1rem;
     }
 
-    .btn-push-cart {
-      background: #eff6ff;
-      color: var(--primary);
-      border: 1px solid #bfdbfe;
-      padding: 6px 0;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      width: 100%;
-      margin-top: 4px;
+    .step-input {
+      font-weight: 800; font-size: 0.9rem; color: var(--primary);
+      background: transparent; border: none; width: 28px; text-align: center;
+      outline: none; user-select: text; -moz-appearance: textfield; padding: 0;
+    }
+    .half-variant .step-input { color: var(--warning); }
+    .step-input::-webkit-outer-spin-button, .step-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    /* Floating Pill Cart */
+    .floating-cart {
+      position: fixed; bottom: 20px; left: 5%; width: 90%;
+      background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(16px);
+      padding: 12px 16px; border-radius: var(--radius-lg); display: flex;
+      justify-content: space-between; align-items: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      z-index: 50; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .floating-cart.hidden { transform: translateY(150px); }
+
+    .cart-info { display: flex; flex-direction: column; color: #fff; }
+    .cart-price { font-size: 1.2rem; font-weight: 800; color: #34d399; }
+    .cart-count { font-size: 0.75rem; font-weight: 600; color: #94a3b8; }
+
+    .btn-checkout-pill {
+      background: #fff; color: var(--text-main); border: none; padding: 8px 16px;
+      border-radius: 20px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
     }
 
-    /* Bottom Fixed Cart Bar */
-    .mobile-cart-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #ffffff;
-      border-top: 1px solid var(--border);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
-      z-index: 30;
+    /* Bottom Sheet Drawer */
+    .scrim {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+      display: none; align-items: flex-end; z-index: 100; opacity: 0; transition: opacity 0.2s ease;
+    }
+    .scrim.show { opacity: 1; }
+
+    .bottom-sheet {
+      background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 28px 28px 0 0;
+      display: flex; flex-direction: column; transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    }
+    .bottom-sheet.show { transform: translateY(0); }
+
+    .sheet-handle { width: 40px; height: 5px; background: #cbd5e1; border-radius: 5px; margin: 12px auto; }
+    .sheet-header { padding: 0 16px 12px; display: flex; justify-content: space-between; align-items: center; }
+    .sheet-title { font-size: 1.1rem; font-weight: 800; }
+    .btn-clear { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; }
+
+    .sheet-body { flex: 1; overflow-y: auto; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .cart-row {
+      background: var(--surface); padding: 10px; border-radius: 14px; display: flex; justify-content: space-between;
+      align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+    .row-info { max-width: 100px; }
+    .row-name { font-weight: 800; font-size: 0.9rem; margin-bottom: 2px; }
+    .row-rate { font-size: 0.75rem; color: var(--text-soft); font-weight: 700; }
+    .row-total { font-size: 1.05rem; font-weight: 800; min-width: 50px; text-align: right; }
+
+    .sheet-footer { background: var(--surface); padding: 16px; border-radius: 28px 28px 0 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.03); }
+    .quick-cash { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
+    .quick-cash::-webkit-scrollbar { display: none; }
+    .cash-pill { background: #f8fafc; border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; white-space: nowrap; }
+    .cash-pill:active { background: var(--primary); color: #fff; }
+
+    .calc-row { display: flex; gap: 12px; margin-bottom: 14px; align-items: center; }
+    .input-glass { flex: 1; background: #f8fafc; border: 1px solid var(--border); padding: 12px 14px; border-radius: 12px; font-size: 1rem; font-weight: 800; outline: none; user-select: text; }
+    .change-label { font-size: 0.9rem; font-weight: 800; color: var(--accent); min-width: 90px; text-align: right; }
+
+    .sheet-btns { display: flex; gap: 10px; }
+    .btn-close-sheet { background: #f1f5f9; color: var(--text-main); border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 0.95rem; width: 30%; }
+    .btn-pay { flex: 1; background: linear-gradient(135deg, var(--accent), #059669); color: #fff; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 1rem; box-shadow: 0 8px 20px var(--accent-glow); }
+
+    /* Modals - SCROLLABLE */
+    .center-modal {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);
+      display: none; align-items: flex-start; justify-content: center; z-index: 120; 
+      padding: 40px 16px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    
+    .dialog-box {
+      background: var(--surface); width: 100%; max-width: 360px; border-radius: 20px;
+      padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); margin: auto; position: relative;
     }
 
-    .cart-summary-text {
-      display: flex;
-      flex-direction: column;
+    .form-group { margin-bottom: 12px; }
+    .form-group label { font-size: 0.8rem; font-weight: 800; margin-bottom: 4px; display: block; color: var(--text-main); }
+    .form-input {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+      background: #f8fafc; font-size: 0.95rem; font-weight: 600; outline: none; user-select: text;
     }
+    .form-input:focus { border-color: var(--primary); background: #fff; }
 
-    .cart-total-tag {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    .cart-items-tag {
-      font-size: 0.72rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .btn-view-bill {
-      background: var(--accent);
-      color: #ffffff;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Cart Drawer Modal */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: none;
-      align-items: flex-end;
-      z-index: 50;
-    }
-
-    .cart-drawer {
-      background: #ffffff;
-      width: 100%;
-      max-height: 80vh;
-      border-radius: 16px 16px 0 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      animation: slideUp 0.2s ease-out;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .drawer-header {
-      padding: 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .drawer-header h3 {
-      font-size: 1rem;
-      font-weight: 800;
-    }
-
-    .btn-drawer-clear {
-      background: none;
-      border: none;
-      color: var(--danger);
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-
-    .drawer-items {
-      overflow-y: auto;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
-    }
-
-    .drawer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f8fafc;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .drawer-row-desc {
-      display: flex;
-      flex-direction: column;
-      max-width: 130px;
-    }
-
-    .drawer-row-name {
-      font-size: 0.85rem;
-      font-weight: 700;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .drawer-row-rate {
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
-
-    .qty-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-step {
-      width: 28px;
-      height: 28px;
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .step-val {
-      font-size: 0.9rem;
-      font-weight: 700;
-      min-width: 20px;
-      text-align: center;
-    }
-
-    .drawer-row-total {
-      font-size: 0.9rem;
-      font-weight: 800;
-      min-width: 45px;
-      text-align: right;
-    }
-
-    .drawer-footer {
-      padding: 14px;
-      background: #f8fafc;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .cash-calc-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .cash-input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .change-text {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .drawer-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-close-drawer {
-      background: #e2e8f0;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-finalize-bill {
-      flex: 1;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Modal Form / Receipt System */
-    .modal-shade {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 14px;
-    }
-
-    .modal-card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 340px;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-
-    .form-group {
-      margin-bottom: 10px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-
-    .form-ctrl {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    .receipt-header {
-      text-align: center;
-      border-bottom: 1px dashed #cbd5e1;
-      padding-bottom: 6px;
-      margin-bottom: 8px;
-    }
-
-    .receipt-tbl {
-      width: 100%;
-      font-size: 0.82rem;
-      border-collapse: collapse;
-      margin-bottom: 8px;
-    }
-
-    .receipt-tbl th {
-      border-bottom: 1px solid var(--border);
-      padding: 3px 0;
-      text-align: left;
-    }
-
-    .receipt-tbl td {
-      padding: 4px 0;
-    }
-
-    .receipt-foot {
-      border-top: 1px dashed #cbd5e1;
-      padding-top: 6px;
-      font-size: 0.85rem;
-    }
-
-    .modal-btns {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .btn-modal-primary {
-      flex: 1;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 6px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-modal-cancel {
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-    }
+    /* Receipt Print Layout */
+    .receipt-print { text-align: center; }
+    .receipt-table { width: 100%; font-size: 0.85rem; text-align: left; margin: 15px 0; border-collapse: collapse; }
+    .receipt-table th { border-bottom: 2px solid var(--border); padding-bottom: 6px; font-weight: 800;}
+    .receipt-table td { padding: 8px 0; border-bottom: 1px dashed var(--border); font-weight: 700; }
+    .receipt-table tr:last-child td { border-bottom: none; }
 
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      .modal-card.receipt-print, .modal-card.receipt-print * {
-        visibility: visible;
-      }
-      .modal-card.receipt-print {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        box-shadow: none;
-        padding: 0;
-      }
-      .modal-btns {
-        display: none !important;
-      }
+      body * { visibility: hidden; }
+      .dialog-box.printable, .dialog-box.printable * { visibility: visible; }
+      .dialog-box.printable { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border-radius: 0; margin: 0; }
+      .sheet-btns { display: none !important; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="brand-section">
+    <div class="brand">
       <div class="brand-icon">₹</div>
-      <div class="brand-name" id="uiBrandName">Billing POS</div>
+      <div class="brand-title" id="uiAppName">Shop POS</div>
     </div>
-    <select class="lang-select" id="langSelect" onchange="switchLanguage(this.value)">
-      <option value="en">English</option>
-      <option value="kn">ಕನ್ನಡ</option>
-    </select>
+    <button class="lang-toggle" onclick="toggleLanguage()" id="langToggleBtn">ಕನ್ನಡ</button>
   </header>
 
-  <main class="mobile-workspace">
-    <div class="controls-row">
-      <input type="text" id="searchInput" class="search-field" placeholder="🔍 Search item..." oninput="handleFilter()" />
-      <button class="btn-add-custom" onclick="openNewModal()" id="uiAddCustomBtn">
-        <span>➕</span> Add
+  <main class="workspace">
+    <div class="search-row">
+      <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search name or number..." oninput="handleSearch()" />
+      <button class="btn-add-item" onclick="openAddEditModal()">
+        <span>➕</span> <span id="uiAddTxt">Add</span>
       </button>
     </div>
-    <div class="catalog-grid" id="catalogGrid"></div>
+    <div class="grid" id="productGrid"></div>
   </main>
 
-  <div class="mobile-cart-bar">
-    <div class="cart-summary-text">
-      <span class="cart-total-tag" id="barTotal">₹0</span>
-      <span class="cart-items-tag"><span id="barItemCount">0</span> <span id="uiBarItemsLabel">items</span></span>
+  <div class="floating-cart hidden" id="floatCart" onclick="openDrawer()">
+    <div class="cart-info">
+      <div class="cart-price" id="pillTotal">₹0</div>
+      <div class="cart-count"><span id="pillCount">0</span> <span id="uiPillItems">items</span></div>
     </div>
-    <button class="btn-view-bill" onclick="openDrawer()" id="uiViewBillBtn">View Bill 🛒</button>
+    <button class="btn-checkout-pill">
+      <span id="uiViewBill">View Bill</span> 🛒
+    </button>
   </div>
 
-  <div class="drawer-overlay" id="cartDrawerOverlay">
-    <div class="cart-drawer">
-      <div class="drawer-header">
-        <h3 id="uiDrawerTitle">Current Order</h3>
-        <button class="btn-drawer-clear" onclick="clearCart()" id="uiDrawerClear">Clear All</button>
+  <div class="scrim" id="drawerScrim" onclick="closeDrawer(event)">
+    <div class="bottom-sheet" id="bottomSheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title" id="uiOrderTitle">Current Order</h3>
+        <button class="btn-clear" onclick="clearCart()" id="uiClearBtn">Clear All</button>
       </div>
 
-      <div class="drawer-items" id="drawerItemsList"></div>
+      <div class="sheet-body" id="drawerList"></div>
 
-      <div class="drawer-footer">
-        <div class="cash-calc-row">
-          <input type="number" id="cashInput" class="cash-input" placeholder="Cash Given (₹)" oninput="updateChangeCalc()" />
-          <span class="change-text" id="drawerChangeText">Change: ₹0</span>
+      <div class="sheet-footer">
+        <div class="quick-cash">
+          <button class="cash-pill" onclick="vibrate(); quickCash(10)">+₹10</button>
+          <button class="cash-pill" onclick="vibrate(); quickCash(50)">+₹50</button>
+          <button class="cash-pill" onclick="vibrate(); quickCash(100)">+₹100</button>
+          <button class="cash-pill" onclick="vibrate(); quickCash(500)">+₹500</button>
+          <button class="cash-pill" style="background:var(--primary); color:#fff; border:none;" onclick="vibrate(); exactCash()">Exact</button>
         </div>
-        <div class="drawer-actions">
-          <button class="btn-close-drawer" onclick="closeDrawer()" id="uiCloseDrawer">Close</button>
-          <button class="btn-finalize-bill" onclick="triggerReceipt()" id="uiPrintBillAction">Print Bill (₹<span id="drawerTotalText">0</span>)</button>
+
+        <div class="calc-row">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" id="cashGivenInput" class="input-glass" placeholder="Cash Given (₹)" oninput="calcChange()" />
+          <div class="change-label" id="changeText">Change: ₹0</div>
+        </div>
+
+        <div class="sheet-btns">
+          <button class="btn-close-sheet" onclick="closeDrawer()" id="uiCloseLabel">Close</button>
+          <button class="btn-pay" onclick="vibrate(); generateBill()" id="uiPayLabel">Print (₹<span id="drawerTotalSum">0</span>)</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal-shade" id="customModal">
-    <div class="modal-card">
-      <h3 style="font-size: 1rem; margin-bottom: 10px;" id="uiCustomTitle">Add Custom Item</h3>
+  <!-- Editor Modal (Scrollable) -->
+  <div class="center-modal" id="addItemModal">
+    <div class="dialog-box">
+      <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px;" id="uiNewItemTitle">Add / Edit Product</h3>
+      <input type="hidden" id="editItemId" />
+      
       <div class="form-group">
-        <label id="uiLblNameEn">Item Name (English) *</label>
-        <input type="text" id="itemNameEn" class="form-ctrl" placeholder="e.g. Vimal" required />
+        <label id="uiLblEn">Item Name (English) *</label>
+        <input type="text" id="addNameEn" class="form-input" placeholder="e.g. Shikhar" required />
       </div>
       <div class="form-group">
-        <label id="uiLblNameKn">Item Name (ಕನ್ನಡ)</label>
-        <input type="text" id="itemNameKn" class="form-ctrl" placeholder="ಉದಾ: ವಿಮಲ್" />
+        <label id="uiLblKn">Item Name (ಕನ್ನಡ)</label>
+        <input type="text" id="addNameKn" class="form-input" placeholder="ಉದಾ: ಶಿಖರ್" />
       </div>
       <div class="form-group">
-        <label id="uiLblPrice">Price (₹) *</label>
-        <input type="number" id="itemPrice" class="form-ctrl" placeholder="e.g. 50" required />
+        <label id="uiLblCost">Full Price / ಪೂರ್ಣ ಬೆಲೆ (₹) *</label>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="addPrice" class="form-input" placeholder="e.g. 50" required />
       </div>
       <div class="form-group">
-        <label id="uiLblCategory">Category</label>
-        <input type="text" id="itemCategory" class="form-ctrl" placeholder="Paan Masala, Cigarette" />
+        <label id="uiLblHalfCost">Half Price / ಅರ್ಧ ಬೆಲೆ (Optional)</label>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="addHalfPrice" class="form-input" placeholder="e.g. 25 (Leave blank if none)" />
       </div>
       <div class="form-group">
-        <label id="uiLblPhoto">Select Image</label>
-        <input type="file" id="itemPhotoFile" accept="image/*" class="form-ctrl" style="padding: 4px;" />
+        <label id="uiLblCat">Category</label>
+        <input type="text" id="addCat" class="form-input" placeholder="e.g. Tobacco, Biscuit" />
       </div>
-      <div class="modal-btns">
-        <button class="btn-modal-cancel" onclick="closeNewModal()" id="uiBtnCancel">Cancel</button>
-        <button class="btn-modal-primary" onclick="submitCustomItem()" id="uiBtnSave">Save</button>
+      <div class="sheet-btns" style="margin-top: 20px;">
+        <button class="btn-close-sheet" onclick="closeAddModal()" id="uiBtnCancel">Cancel</button>
+        <button class="btn-pay" onclick="vibrate(); saveCustomItem()" id="uiBtnSave">Save Item</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-shade" id="receiptModal">
-    <div class="modal-card receipt-print">
-      <div class="receipt-header">
-        <h3 style="font-size: 1rem; font-weight: 800;" id="uiShopHeader">RETAIL STORE</h3>
-        <p style="font-size: 0.72rem; color: var(--muted);" id="uiMemoHeader">Tax Invoice / Cash Memo</p>
-        <p style="font-size: 0.7rem; color: var(--muted);" id="invoiceClock"></p>
-      </div>
-      <table class="receipt-tbl">
+  <!-- Receipt Modal (Scrollable) -->
+  <div class="center-modal" id="invoiceModal">
+    <div class="dialog-box printable receipt-print">
+      <h3 style="font-size: 1.2rem; font-weight: 800;" id="uiShopHeader">RETAIL STORE</h3>
+      <p style="font-size: 0.75rem; color: var(--text-soft);" id="uiInvoiceMemo">Tax Invoice / Cash Memo</p>
+      <p style="font-size: 0.7rem; color: var(--text-soft); margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 10px;" id="invoiceTimeDisplay"></p>
+
+      <table class="receipt-table">
         <thead>
           <tr>
             <th id="uiThItem">Item</th>
             <th style="text-align: center;" id="uiThQty">Qty</th>
-            <th style="text-align: right;" id="uiThPrice">Price</th>
+            <th style="text-align: right;" id="uiThPrice">Total</th>
           </tr>
         </thead>
-        <tbody id="invoiceRows"></tbody>
+        <tbody id="invoiceTableBody"></tbody>
       </table>
-      <div class="receipt-foot">
-        <div style="display: flex; justify-content: space-between; font-weight: 800;">
-          <span id="uiReceiptTotalLabel">Total Payable:</span>
-          <span id="invoiceFinalTotal">₹0</span>
+
+      <div style="border-top: 2px dashed var(--border); padding-top: 12px; font-size: 0.9rem;">
+        <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:6px; font-size: 1.05rem;">
+          <span id="uiNetLabel">Payable:</span>
+          <span id="invoiceTotalVal">₹0</span>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 2px;">
-          <span id="uiReceiptPaidLabel">Cash Paid:</span>
-          <span id="invoiceCashPaid">₹0</span>
+        <div style="display:flex; justify-content:space-between; color:var(--text-soft); margin-bottom:4px; font-weight: 700;">
+          <span id="uiPaidLabel">Cash Paid:</span>
+          <span id="invoicePaidVal">₹0</span>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted);">
-          <span id="uiReceiptDueLabel">Change Returned:</span>
-          <span id="invoiceChangeReturned">₹0</span>
+        <div style="display:flex; justify-content:space-between; color:var(--text-soft); font-weight: 700;">
+          <span id="uiChangeLabel">Change Returned:</span>
+          <span id="invoiceChangeVal">₹0</span>
         </div>
-        <p style="text-align: center; font-size: 0.75rem; margin-top: 10px; color: #16a34a; font-weight: 700;" id="uiThanksNote">Thank you! Visit again.</p>
       </div>
-      <div class="modal-btns">
-        <button class="btn-modal-cancel" onclick="closeReceiptModal()" id="uiCloseBtn">Close</button>
-        <button class="btn-modal-primary" onclick="window.print()" id="uiPrintBtn">🖨️ Print</button>
+      <p style="font-size: 0.85rem; font-weight: 800; color: var(--accent); margin-top: 20px;" id="uiThanksNote">Thank you! Visit again.</p>
+
+      <div class="sheet-btns" style="margin-top: 20px;">
+        <button class="btn-close-sheet" onclick="closeInvoiceModal()" id="uiBtnCloseInvoice">Close</button>
+        <button class="btn-pay" onclick="vibrate(); window.print()" id="uiBtnPrint">🖨️ Print Bill</button>
       </div>
     </div>
   </div>
 
   <script>
-    const dictionary = {
+    function vibrate() { if (navigator.vibrate) navigator.vibrate(40); }
+
+    const dict = {
       en: {
-        brand: "Billing POS",
-        search: "🔍 Search item...",
-        add: "➕ Add",
-        barItems: "items",
-        viewBill: "View Bill 🛒",
-        drawerTitle: "Current Order",
-        clear: "Clear",
-        empty: "No items added yet.<br>Tap items to add.",
-        cashPlaceholder: "Cash Given (₹)",
-        changeText: "Change: ₹0",
-        changePrefix: "Change: ₹",
-        duePrefix: "Due: ₹",
-        printBill: "Print Bill",
-        addBtn: "+ Add",
-        customTitle: "Add Custom Item",
-        lblNameEn: "Item Name (English) *",
-        lblNameKn: "Item Name (ಕನ್ನಡ)",
-        lblPrice: "Price (₹) *",
-        lblCat: "Category",
-        lblPhoto: "Select Image",
-        btnCancel: "Cancel",
-        btnSave: "Save",
-        shopName: "RETAIL STORE",
-        invoiceMemo: "Tax Invoice / Cash Memo",
-        thItem: "Item",
-        thQty: "Qty",
-        thPrice: "Price",
-        recTotal: "Total Payable:",
-        recPaid: "Cash Paid:",
-        recDue: "Change Returned:",
-        thanks: "Thank you! Visit again.",
-        close: "Close",
-        print: "🖨️ Print"
+        app: "Shop POS", search: "🔍 Search name or number...", toggle: "ಕನ್ನಡ", addTxt: "Add", pillItems: "items", viewBill: "View Bill", orderTitle: "Current Order", clear: "Clear All", empty: "Cart is empty.<br>Tap items to add.", cashPlaceholder: "Cash Given (₹)", changeText: "Change: ₹0", changePre: "Change: ₹", duePre: "Due: ₹", close: "Close", payLabel: "Print", newTitle: "Add / Edit Product", lblEn: "Item Name (English) *", lblKn: "Item Name (ಕನ್ನಡ)", lblCost: "Full Price (₹) *", lblHalf: "Half Price (Optional)", lblCat: "Category", cancel: "Cancel", save: "Save Item", shopHeader: "RETAIL STORE", invoiceMemo: "Tax Invoice / Cash Memo", thItem: "Item", thQty: "Qty", thPrice: "Total", net: "Payable:", paid: "Cash Paid:", change: "Change Returned:", thanks: "Thank you! Visit again.", print: "🖨️ Print Bill", editTxt: "Edit"
       },
       kn: {
-        brand: "ಬಿಲ್ಲಿಂಗ್ POS",
-        search: "🔍 ಐಟಂ ಹುಡುಕಿ...",
-        add: "➕ ಸೇರಿಸಿ",
-        barItems: "ಐಟಂಗಳು",
-        viewBill: "ಬಿಲ್ ನೋಡಿ 🛒",
-        drawerTitle: "ಪ್ರಸ್ತುತ ಆರ್ಡರ್",
-        clear: "ಅಳಿಸು",
-        empty: "ಯಾವುದೇ ಐಟಂ ಸೇರಿಸಲಾಗಿಲ್ಲ.<br>ಐಟಂ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ.",
-        cashPlaceholder: "ಗ್ರಾಹಕರು ನೀಡಿದ ಹಣ (₹)",
-        changeText: "ಬಾಕಿ: ₹0",
-        changePrefix: "ಬಾಕಿ: ₹",
-        duePrefix: "ಉಳಿಕೆ: ₹",
-        printBill: "ಬಿಲ್ ಮುದ್ರಿಸಿ",
-        addBtn: "+ ಸೇರಿಸಿ",
-        customTitle: "ಹೊಸ ಐಟಂ ಸೇರಿಸಿ",
-        lblNameEn: "ಐಟಂ ಹೆಸರು (ಇಂಗ್ಲಿಷ್) *",
-        lblNameKn: "ಐಟಂ ಹೆಸರು (ಕನ್ನಡ)",
-        lblPrice: "ಬೆಲೆ (₹) *",
-        lblCat: "ವಿಭಾಗ",
-        lblPhoto: "ಫೋಟೋ ಆಯ್ಕೆಮಾಡಿ",
-        btnCancel: "ರದ್ದು",
-        btnSave: "ಉಳಿಸಿ",
-        shopName: "ಶ್ರೀ ಚಿಲ್ಲರೆ ವ್ಯಾಪಾರ ಮಳಿಗೆ",
-        invoiceMemo: "ಖರೀದಿ ರಶೀದಿ / ಕ್ಯಾಶ್ ಮೆಮೊ",
-        thItem: "ಐಟಂ",
-        thQty: "ಪ್ರಮಾಣ",
-        thPrice: "ಬೆಲೆ",
-        recTotal: "ಒಟ್ಟು ಪಾವತಿ:",
-        recPaid: "ಸ್ವೀಕರಿಸಿದ ನಗದು:",
-        recDue: "ಮರಳಿಸಿದ ಬಾಕಿ:",
-        thanks: "ಧನ್ಯವಾದಗಳು! ಮತ್ತೆ ಬನ್ನಿ.",
-        close: "ಮುಚ್ಚು",
-        print: "🖨️ ಪ್ರಿಂಟ್"
+        app: "ಅಂಗಡಿ POS", search: "🔍 ಹೆಸರು ಅಥವಾ ನಂಬರ್ ಹುಡುಕಿ...", toggle: "EN", addTxt: "ಸೇರಿಸಿ", pillItems: "ಐಟಂಗಳು", viewBill: "ಬಿಲ್ ನೋಡಿ", orderTitle: "ಪ್ರಸ್ತುತ ಆರ್ಡರ್", clear: "ಎಲ್ಲಾ ಅಳಿಸು", empty: "ಯಾವುದೇ ಐಟಂ ಇಲ್ಲ.<br>ಸೇರಿಸಲು ಐಟಂ ಒತ್ತಿ.", cashPlaceholder: "ನೀಡಿದ ಹಣ (₹)", changeText: "ಬಾಕಿ: ₹0", changePre: "ಬಾಕಿ: ₹", duePre: "ಉಳಿಕೆ: ₹", close: "ಮುಚ್ಚು", payLabel: "ಪ್ರಿಂಟ್", newTitle: "ಐಟಂ ಎಡಿಟ್ / ಸೇರಿಸಿ", lblEn: "ಹೆಸರು (ಇಂಗ್ಲಿಷ್) *", lblKn: "ಹೆಸರು (ಕನ್ನಡ)", lblCost: "ಪೂರ್ಣ ಬೆಲೆ (₹) *", lblHalf: "ಅರ್ಧ ಬೆಲೆ (Optional)", lblCat: "ವಿಭಾಗ", cancel: "ರದ್ದು", save: "ಉಳಿಸಿ", shopHeader: "ಶ್ರೀ ಚಿಲ್ಲರೆ ವ್ಯಾಪಾರ ಮಳಿಗೆ", invoiceMemo: "ಖರೀದಿ ರಶೀದಿ / ಕ್ಯಾಶ್ ಮೆಮೊ", thItem: "ಐಟಂ", thQty: "ಪ್ರಮಾಣ", thPrice: "ಮೊತ್ತ", net: "ಒಟ್ಟು ಪಾವತಿ:", paid: "ಸ್ವೀಕರಿಸಿದ ನಗದು:", change: "ಮರಳಿಸಿದ ಬಾಕಿ:", thanks: "ಧನ್ಯವಾದಗಳು! ಮತ್ತೆ ಬನ್ನಿ.", print: "🖨️ ಬಿಲ್ ಪ್ರಿಂಟ್", editTxt: "ಎಡಿಟ್"
       }
     };
 
-    const initialItems = [
-      { id: 1, nameEn: "Vimal", nameKn: "ವಿಮಲ್", cost: 123, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", img: "images/vimal.jpg", color: "#d97706" },
-      { id: 2, nameEn: "Hira", nameKn: "ಹೀರಾ", cost: 175, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", img: "images/hira.jpg", color: "#dc2626" },
-      { id: 3, nameEn: "Kashisah", nameKn: "ಕಶಿಶ್", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", img: "images/kashish.jpg", color: "#7c3aed" },
-      { id: 4, nameEn: "Kashish (2)", nameKn: "ಕಶಿಶ್ (೨)", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", img: "images/kashish2.jpg", color: "#4f46e5" },
-      { id: 5, nameEn: "Hello", nameKn: "ಹೆಲೋ", cost: 35, catEn: "Tobacco", catKn: "ತಂಬಾಕು", img: "images/hello.jpg", color: "#db2777" },
-      { id: 6, nameEn: "Gold", nameKn: "ಗೋಲ್ಡ್", cost: 120, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", img: "images/gold.jpg", color: "#ca8a04" },
-      { id: 7, nameEn: "King", nameKn: "ಕಿಂಗ್ಸ್", cost: 223, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", img: "images/king.jpg", color: "#0284c7" },
-      { id: 8, nameEn: "Light King", nameKn: "ಲೈಟ್ ಕಿಂಗ್", cost: 223, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", img: "images/light-king.jpg", color: "#0d9488" }
+    // Full 39 Items Database extracted from your Excel sheets
+    const masterStock = [
+      { id: 101, nameEn: "Ganesh", nameKn: "ಗಣೇಶ್ ಬೀಡಿ", cost: 480, halfCost: 240, catEn: "Beedi", catKn: "ಬೀಡಿ", color: "linear-gradient(135deg, #ea580c, #9a3412)" },
+      { id: 102, nameEn: "9 No", nameKn: "೯ ನಂ ಬೀಡಿ", cost: 410, halfCost: 205, catEn: "Beedi", catKn: "ಬೀಡಿ", color: "linear-gradient(135deg, #c2410c, #7c2d12)" },
+      { id: 103, nameEn: "9 No Small", nameKn: "೯ ನಂ ಸಣ್ಣದು", cost: 215, halfCost: 110, catEn: "Beedi", catKn: "ಬೀಡಿ", color: "linear-gradient(135deg, #f97316, #c2410c)" },
+      { id: 104, nameEn: "Bigg Bieddi", nameKn: "ದೊಡ್ಡ ಬೀಡಿ", cost: 265, halfCost: 135, catEn: "Beedi", catKn: "ಬೀಡಿ", color: "linear-gradient(135deg, #b45309, #78350f)" },
+      { id: 105, nameEn: "Player's", nameKn: "ಪ್ಲೇಯರ್ಸ್", cost: 107, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", color: "linear-gradient(135deg, #3b82f6, #1d4ed8)" },
+      { id: 106, nameEn: "Birstal", nameKn: "ಬ್ರಿಸ್ಟಲ್", cost: 82, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", color: "linear-gradient(135deg, #6366f1, #4338ca)" },
+      { id: 107, nameEn: "Kashaish (5)", nameKn: "ಕಶಿಶ್ (೫)", cost: 85, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #8b5cf6, #6d28d9)" },
+      { id: 108, nameEn: "Anni", nameKn: "ಅನ್ನಿ", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #a855f7, #7e22ce)" },
+      { id: 109, nameEn: "Google", nameKn: "ಗೂಗಲ್", cost: 35, catEn: "Tobacco", catKn: "ತಂಬಾಕು", color: "linear-gradient(135deg, #0ea5e9, #0369a1)" },
+      { id: 110, nameEn: "Sope", nameKn: "ಸೋಪು", cost: 27, catEn: "General", catKn: "ಜನರಲ್", color: "linear-gradient(135deg, #10b981, #047857)" },
+      { id: 111, nameEn: "Indment", nameKn: "ಇಂಟ್‌ಮೆಂಟ್", cost: 114, catEn: "General", catKn: "ಜನರಲ್", color: "linear-gradient(135deg, #14b8a6, #0f766e)" },
+      { id: 112, nameEn: "Black", nameKn: "ಬ್ಲಾಕ್", cost: 100, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", color: "linear-gradient(135deg, #64748b, #334155)" },
+      { id: 113, nameEn: "Chinikan", nameKn: "ಚಿನಿಕನ್", cost: 350, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #ef4444, #b91c1c)" },
+      { id: 114, nameEn: "Bira", nameKn: "ಬೀರಾ", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #f43f5e, #be123c)" },
+      { id: 115, nameEn: "Crane (2)", nameKn: "ಕ್ರೇನ್ (೨)", cost: 105, catEn: "Betel Nut", catKn: "ಅಡಿಕೆ ಪುಡಿ", color: "linear-gradient(135deg, #d97706, #a16207)" },
+      { id: 116, nameEn: "Crane (5)", nameKn: "ಕ್ರೇನ್ (೫)", cost: 130, catEn: "Betel Nut", catKn: "ಅಡಿಕೆ ಪುಡಿ", color: "linear-gradient(135deg, #b45309, #854d0e)" },
+      { id: 117, nameEn: "Crane (10)", nameKn: "ಕ್ರೇನ್ (೧೦)", cost: 175, catEn: "Betel Nut", catKn: "ಅಡಿಕೆ ಪುಡಿ", color: "linear-gradient(135deg, #92400e, #713f12)" },
+      { id: 118, nameEn: "Chinikan (Small)", nameKn: "ಚಿನಿಕನ್ ಸಣ್ಣದು", cost: 135, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #dc2626, #991b1b)" },
+      { id: 119, nameEn: "Anurag", nameKn: "ಅನುರಾಗ್", cost: 42, catEn: "Tobacco", catKn: "ತಂಬಾಕು", color: "linear-gradient(135deg, #d946ef, #c026d3)" },
+      { id: 120, nameEn: "Nelu Gold", nameKn: "ನೇಲು ಗೋಲ್ಡ್", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #eab308, #ca8a04)" },
+      { id: 121, nameEn: "Vimal (Big)", nameKn: "ವಿಮಲ್ (ದೊಡ್ಡದು)", cost: 180, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", color: "linear-gradient(135deg, #f59e0b, #d97706)" },
+      { id: 122, nameEn: "Matchboxes", nameKn: "ಬೆಂಕಿಪೊಟ್ಟಣ", cost: 75, catEn: "General", catKn: "ಜನರಲ್", color: "linear-gradient(135deg, #f97316, #ea580c)" },
+      { id: 123, nameEn: "Shanka Matchbox", nameKn: "ಶಂಖ ಬೆಂಕಿಪೊಟ್ಟಣ", cost: 158, catEn: "General", catKn: "ಜನರಲ್", color: "linear-gradient(135deg, #ea580c, #c2410c)" },
+      { id: 124, nameEn: "Edition", nameKn: "ಎಡಿಷನ್", cost: 260, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", color: "linear-gradient(135deg, #3b82f6, #1d4ed8)" },
+      { id: 125, nameEn: "Total", nameKn: "ಟೋಟಲ್", cost: 60, catEn: "Cigarette", catKn: "ಸಿಗರೇಟ್", color: "linear-gradient(135deg, #2563eb, #1e40af)" },
+      { id: 126, nameEn: "Good Knight", nameKn: "ಗುಡ್ ನೈಟ್", cost: 40, catEn: "General", catKn: "ಜನರಲ್", color: "linear-gradient(135deg, #10b981, #059669)" },
+      { id: 127, nameEn: "RMD Small", nameKn: "ಆರ್ ಎಂ ಡಿ ಸಣ್ಣದು", cost: 985, halfCost: 495, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", color: "linear-gradient(135deg, #eab308, #ca8a04)" },
+      { id: 128, nameEn: "RMD Big", nameKn: "ಆರ್ ಎಂ ಡಿ ದೊಡ್ಡದು", cost: 1225, halfCost: 615, catEn: "Paan Masala", catKn: "ಪಾನ್ ಮಸಾಲಾ", color: "linear-gradient(135deg, #ca8a04, #a16207)" },
+      { id: 129, nameEn: "Parle-G", nameKn: "ಪಾರ್ಲೆ-ಜಿ", cost: 108, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #fcd34d, #f59e0b)" },
+      { id: 130, nameEn: "Happy", nameKn: "ಹ್ಯಾಪಿ", cost: 108, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #fbbf24, #d97706)" },
+      { id: 131, nameEn: "Milk Biscuits", nameKn: "ಮಿಲ್ಕ್ ಬಿಸ್ಕತ್ತು", cost: 108, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #fef08a, #eab308)" },
+      { id: 132, nameEn: "Mari Gold", nameKn: "ಮಾರಿ ಗೋಲ್ಡ್", cost: 55, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #fde047, #ca8a04)" },
+      { id: 133, nameEn: "Mom's Magic", nameKn: "ಮಾಮ್ಸ್ ಮ್ಯಾಜಿಕ್", cost: 54, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #facc15, #a16207)" },
+      { id: 134, nameEn: "Good Day", nameKn: "ಗುಡ್ ಡೇ", cost: 54, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #eab308, #854d0e)" },
+      { id: 135, nameEn: "Bounce", nameKn: "ಬೌನ್ಸ್", cost: 54, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #d97706, #713f12)" },
+      { id: 136, nameEn: "Tiger", nameKn: "ಟೈಗರ್", cost: 108, catEn: "Biscuit", catKn: "ಬಿಸ್ಕತ್ತು", color: "linear-gradient(135deg, #b45309, #451a03)" },
+      { id: 137, nameEn: "786", nameKn: "೭೮೬", cost: 320, catEn: "Beedi", catKn: "ಬೀಡಿ", color: "linear-gradient(135deg, #991b1b, #7f1d1d)" },
+      { id: 138, nameEn: "Kashaish (2)", nameKn: "ಕಶಿಶ್ (೨)", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #c026d3, #a21caf)" },
+      { id: 139, nameEn: "Kashaish (1)", nameKn: "ಕಶಿಶ್ (೧)", cost: 50, catEn: "Pouch", catKn: "ಪೌಚ್", color: "linear-gradient(135deg, #e879f9, #d946ef)" }
     ];
 
-    let inventory = JSON.parse(localStorage.getItem("pos_stock_phone")) || initialItems;
-    let activeLang = "en";
+    let items = JSON.parse(localStorage.getItem("pos_inv_final_v4")) || masterStock;
     let cart = {};
+    let lang = "en";
 
-    function persistStock() {
-      localStorage.setItem("pos_stock_phone", JSON.stringify(inventory));
+    function toggleLanguage() {
+      vibrate();
+      lang = lang === "en" ? "kn" : "en";
+      const s = dict[lang];
+
+      document.getElementById("langToggleBtn").innerText = s.toggle;
+      document.getElementById("uiAppName").innerText = s.app;
+      document.getElementById("searchInput").placeholder = s.search;
+      document.getElementById("uiAddTxt").innerText = s.addTxt;
+      document.getElementById("uiPillItems").innerText = s.pillItems;
+      document.getElementById("uiViewBill").innerText = s.viewBill;
+      document.getElementById("uiOrderTitle").innerText = s.orderTitle;
+      document.getElementById("uiClearBtn").innerText = s.clear;
+      document.getElementById("cashGivenInput").placeholder = s.cashPlaceholder;
+      document.getElementById("uiCloseLabel").innerText = s.close;
+      document.getElementById("uiNewItemTitle").innerText = s.newTitle;
+      document.getElementById("uiLblEn").innerText = s.lblEn;
+      document.getElementById("uiLblKn").innerText = s.lblKn;
+      document.getElementById("uiLblCost").innerText = s.lblCost;
+      document.getElementById("uiLblHalfCost").innerText = s.lblHalf;
+      document.getElementById("uiLblCat").innerText = s.lblCat;
+      document.getElementById("uiBtnCancel").innerText = s.cancel;
+      document.getElementById("uiBtnSave").innerText = s.save;
+      document.getElementById("uiShopHeader").innerText = s.shopHeader;
+      document.getElementById("uiInvoiceMemo").innerText = s.invoiceMemo;
+      document.getElementById("uiThItem").innerText = s.thItem;
+      document.getElementById("uiThQty").innerText = s.thQty;
+      document.getElementById("uiThPrice").innerText = s.thPrice;
+      document.getElementById("uiNetLabel").innerText = s.net;
+      document.getElementById("uiPaidLabel").innerText = s.paid;
+      document.getElementById("uiChangeLabel").innerText = s.change;
+      document.getElementById("uiThanksNote").innerText = s.thanks;
+      document.getElementById("uiBtnCloseInvoice").innerText = s.close;
+      document.getElementById("uiBtnPrint").innerText = s.print;
+      
+      const payLbl = document.getElementById("uiPayLabel");
+      const sumSpan = document.getElementById("drawerTotalSum").outerHTML;
+      payLbl.innerHTML = `${s.payLabel} (₹${sumSpan})`;
+
+      renderGrid(items);
+      updateCartUI();
     }
 
-    function switchLanguage(lang) {
-      activeLang = lang;
-      const t = dictionary[lang];
-
-      document.getElementById("uiBrandName").innerText = t.brand;
-      document.getElementById("searchInput").placeholder = t.search;
-      document.getElementById("uiAddCustomBtn").innerHTML = `<span>➕</span> ${t.add}`;
-      document.getElementById("uiBarItemsLabel").innerText = t.barItems;
-      document.getElementById("uiViewBillBtn").innerText = t.viewBill;
-      document.getElementById("uiDrawerTitle").innerText = t.drawerTitle;
-      document.getElementById("uiDrawerClear").innerText = t.clear;
-      document.getElementById("cashInput").placeholder = t.cashPlaceholder;
-
-      document.getElementById("uiCustomTitle").innerText = t.customTitle;
-      document.getElementById("uiLblNameEn").innerText = t.lblNameEn;
-      document.getElementById("uiLblNameKn").innerText = t.lblNameKn;
-      document.getElementById("uiLblPrice").innerText = t.lblPrice;
-      document.getElementById("uiLblCategory").innerText = t.lblCat;
-      document.getElementById("uiLblPhoto").innerText = t.lblPhoto;
-      document.getElementById("uiBtnCancel").innerText = t.btnCancel;
-      document.getElementById("uiBtnSave").innerText = t.btnSave;
-
-      document.getElementById("uiShopHeader").innerText = t.shopName;
-      document.getElementById("uiMemoHeader").innerText = t.invoiceMemo;
-      document.getElementById("uiThItem").innerText = t.thItem;
-      document.getElementById("uiThQty").innerText = t.thQty;
-      document.getElementById("uiThPrice").innerText = t.thPrice;
-      document.getElementById("uiReceiptTotalLabel").innerText = t.recTotal;
-      document.getElementById("uiReceiptPaidLabel").innerText = t.recPaid;
-      document.getElementById("uiReceiptDueLabel").innerText = t.recDue;
-      document.getElementById("uiThanksNote").innerText = t.thanks;
-      document.getElementById("uiCloseBtn").innerText = t.close;
-      document.getElementById("uiPrintBtn").innerText = t.print;
-
-      renderItems(inventory);
-      renderCart();
+    function getName(item, isHalf = false) { 
+      let n = (lang === "kn" && item.nameKn) ? item.nameKn : item.nameEn; 
+      return isHalf ? n + " (½)" : n;
     }
+    function getCat(item) { return (lang === "kn" && item.catKn) ? item.catKn : item.catEn; }
 
-    function localizedTitle(item) {
-      return (activeLang === 'kn' && item.nameKn) ? item.nameKn : item.nameEn;
-    }
-
-    function localizedCategory(item) {
-      return (activeLang === 'kn' && item.catKn) ? item.catKn : item.catEn;
-    }
-
-    function renderItems(list) {
-      const grid = document.getElementById("catalogGrid");
-      const t = dictionary[activeLang];
+    function renderGrid(list) {
+      const grid = document.getElementById("productGrid");
+      const s = dict[lang];
 
       if (list.length === 0) {
-        grid.innerHTML = `<p style="grid-column: 1/-1; color: var(--muted); text-align:center; padding: 20px;">No items found.</p>`;
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-soft); padding: 40px 10px;">No items found.</p>`;
         return;
       }
 
-      grid.innerHTML = list.map(item => `
-        <div class="item-card" onclick="pushToCart(${item.id})">
-          <div class="item-photo-wrap">
-            <span class="category-label">${localizedCategory(item)}</span>
-            ${item.img ? `
-              <img 
-                src="${item.img}" 
-                alt="${item.nameEn}" 
-                class="item-photo" 
-                loading="lazy" 
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
-              />
-              <div class="badge-fallback" style="display:none; background:${item.color || '#1e3a8a'};">
-                ${item.nameEn.charAt(0).toUpperCase()}
+      grid.innerHTML = list.map(item => {
+        const fullId = item.id.toString();
+        const halfId = item.id + "_half";
+        const inCartFull = cart[fullId] ? cart[fullId].qty : 0;
+        const inCartHalf = cart[halfId] ? cart[halfId].qty : 0;
+
+        let halfHTML = "";
+        if (item.halfCost) {
+          halfHTML = `
+            <div class="variant-row half-variant" onclick="event.stopPropagation(); modifyQty('${halfId}', 1, ${item.halfCost}, true)">
+              <div class="variant-label">
+                <span class="v-title">Half Price</span>
+                <span class="v-price">₹${item.halfCost}</span>
               </div>
-            ` : `
-              <div class="badge-fallback" style="background:${item.color || '#1e3a8a'};">
-                ${item.nameEn.charAt(0).toUpperCase()}
+              <div class="btn-stepper ${inCartHalf > 0 ? 'active-step' : ''}" onclick="event.stopPropagation()">
+                ${inCartHalf === 0 ? `
+                  <button class="btn-stepper add" onclick="modifyQty('${halfId}', 1,${item.halfCost}, true)">+ Add</button>
+                ` : `
+                  <button class="step-icon" onclick="modifyQty('${halfId}', -1)">−</button>
+                  <input type="number" inputmode="numeric" class="step-input" value="${inCartHalf}" onchange="setQty('${halfId}', this.value)" onclick="this.select()" />
+                  <button class="step-icon" onclick="modifyQty('${halfId}', 1)">+</button>
+                `}
               </div>
-            `}
-          </div>
-          <div class="item-info">
-            <div class="item-title">${localizedTitle(item)}</div>
-            <div class="item-rate">₹${item.cost}</div>
-            <button class="btn-push-cart" type="button" onclick="event.stopPropagation(); pushToCart(${item.id})">
-              ${t.addBtn}
+            </div>
+          `;
+        }
+
+        return `
+          <div class="card">
+            <!-- Edit Button on Card -->
+            <button class="edit-pill" onclick="event.stopPropagation(); openAddEditModal(${item.id})">
+              ✏️ ${s.editTxt}
             </button>
+
+            <div class="card-img-wrap" onclick="modifyQty('${fullId}', 1, ${item.cost}, false)">
+              <span class="cat-tag">${getCat(item)}</span>
+              <div class="fallback-gradient" style="background:${item.color || 'linear-gradient(135deg, #4f46e5, #818cf8)'};">
+                ${item.nameEn.charAt(0).toUpperCase()}
+              </div>
+            </div>
+            <div class="card-title">${getName(item)}</div>
+            
+            <div class="variant-row" onclick="event.stopPropagation(); modifyQty('${fullId}', 1, ${item.cost}, false)">
+              <div class="variant-label">
+                <span class="v-title">Full Price</span>
+                <span class="v-price">₹${item.cost}</span>
+              </div>
+              <div class="btn-stepper ${inCartFull > 0 ? 'active-step' : ''}" onclick="event.stopPropagation()">
+                ${inCartFull === 0 ? `
+                  <button class="btn-stepper add" onclick="modifyQty('${fullId}', 1,${item.cost}, false)">+ Add</button>
+                ` : `
+                  <button class="step-icon" onclick="modifyQty('${fullId}', -1)">−</button>
+                  <input type="number" inputmode="numeric" class="step-input" value="${inCartFull}" onchange="setQty('${fullId}', this.value)" onclick="this.select()" />
+                  <button class="step-icon" onclick="modifyQty('${fullId}', 1)">+</button>
+                `}
+              </div>
+            </div>
+            ${halfHTML}
           </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
-    function handleFilter() {
+    function handleSearch() {
       const q = document.getElementById("searchInput").value.toLowerCase().trim();
-      const filtered = inventory.filter(i => 
+      const filtered = items.filter(i => 
+        i.id.toString() === q ||
         (i.nameEn && i.nameEn.toLowerCase().includes(q)) || 
         (i.nameKn && i.nameKn.includes(q)) ||
         (i.catEn && i.catEn.toLowerCase().includes(q)) ||
         (i.catKn && i.catKn.includes(q))
       );
-      renderItems(filtered);
+      renderGrid(filtered);
     }
 
-    function pushToCart(id) {
-      if (cart[id]) {
-        cart[id].qty += 1;
+    function modifyQty(idStr, delta, priceOverride = 0, isHalf = false) {
+      vibrate();
+      if (!cart[idStr]) {
+        if (delta > 0) {
+          const baseId = parseInt(idStr.toString().replace("_half", ""));
+          const product = items.find(i => i.id === baseId);
+          if (product) {
+            cart[idStr] = { ...product, qty: 1, _cartId: idStr, _isHalf: isHalf, _cost: priceOverride };
+          }
+        }
       } else {
-        const product = inventory.find(i => i.id === id);
-        if (product) cart[id] = { ...product, qty: 1 };
+        cart[idStr].qty += delta;
+        if (cart[idStr].qty <= 0) delete cart[idStr];
       }
-      renderCart();
+      renderGrid(items);
+      updateCartUI();
     }
 
-    function shiftQuantity(id, delta) {
-      if (!cart[id]) return;
-      cart[id].qty += delta;
-      if (cart[id].qty <= 0) delete cart[id];
-      renderCart();
+    function setQty(idStr, value) {
+      vibrate();
+      const val = parseInt(value, 10);
+      if (isNaN(val) || val <= 0) {
+        delete cart[idStr];
+      } else {
+        if (!cart[idStr]) {
+          const isHalf = idStr.toString().includes("_half");
+          const baseId = parseInt(idStr.toString().replace("_half", ""));
+          const product = items.find(i => i.id === baseId);
+          if (product) {
+             const cost = isHalf ? product.halfCost : product.cost;
+             cart[idStr] = { ...product, qty: val, _cartId: idStr, _isHalf: isHalf, _cost: cost };
+          }
+        } else {
+          cart[idStr].qty = val;
+        }
+      }
+      renderGrid(items);
+      updateCartUI();
     }
 
     function clearCart() {
+      vibrate();
       cart = {};
-      const cashBox = document.getElementById("cashInput");
-      if (cashBox) cashBox.value = "";
-      renderCart();
+      document.getElementById("cashGivenInput").value = "";
+      renderGrid(items);
+      updateCartUI();
       closeDrawer();
     }
 
-    function renderCart() {
-      const container = document.getElementById("drawerItemsList");
-      const t = dictionary[activeLang];
+    function updateCartUI() {
+      const listEl = document.getElementById("drawerList");
+      const pill = document.getElementById("floatCart");
+      const s = dict[lang];
       const keys = Object.keys(cart);
       let count = 0;
       let total = 0;
 
       if (keys.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; color: var(--muted); padding: 30px 10px; font-size: 0.9rem;">
-            🛒<br>${t.empty}
-          </div>
-        `;
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-soft); padding: 50px 10px;">🛒<br>${s.empty}</div>`;
+        pill.classList.add("hidden");
       } else {
-        container.innerHTML = keys.map(k => {
+        pill.classList.remove("hidden");
+        listEl.innerHTML = keys.map(k => {
           const item = cart[k];
-          const lineSum = item.qty * item.cost;
+          const lineSum = item.qty * item._cost;
           count += item.qty;
           total += lineSum;
+
           return `
-            <div class="drawer-row">
-              <div class="drawer-row-desc">
-                <span class="drawer-row-name">${localizedTitle(item)}</span>
-                <span class="drawer-row-rate">₹${item.cost}</span>
+            <div class="cart-row">
+              <div class="row-info">
+                <div class="row-name" style="${item._isHalf ? 'color: var(--warning);' : ''}">${getName(item, item._isHalf)}</div>
+                <div class="row-rate">₹${item._cost}</div>
               </div>
-              <div class="qty-bar">
-                <button class="btn-step" type="button" onclick="shiftQuantity(${item.id}, -1)">-</button>
-                <span class="step-val">${item.qty}</span>
-                <button class="btn-step" type="button" onclick="shiftQuantity(${item.id}, 1)">+</button>
+              <div class="btn-stepper active-step ${item._isHalf ? 'half-active' : ''}" style="width: 85px;">
+                <button class="step-icon" onclick="modifyQty('${k}', -1)">−</button>
+                <input type="number" inputmode="numeric" class="step-input" value="${item.qty}" onchange="setQty('${k}', this.value)" onclick="this.select()" />
+                <button class="step-icon" onclick="modifyQty('${k}', 1)">+</button>
               </div>
-              <div class="drawer-row-total">₹${lineSum}</div>
+              <div class="row-total">₹${lineSum}</div>
             </div>
           `;
         }).join("");
       }
 
-      document.getElementById("barTotal").innerText = `₹${total}`;
-      document.getElementById("barItemCount").innerText = count;
-      document.getElementById("drawerTotalText").innerText = total;
-      updateChangeCalc();
+      document.getElementById("pillTotal").innerText = `₹${total}`;
+      document.getElementById("pillCount").innerText = count;
+      document.getElementById("drawerTotalSum").innerText = total;
+      calcChange();
     }
 
-    function updateChangeCalc() {
-      const t = dictionary[activeLang];
-      const total = parseFloat(document.getElementById("drawerTotalText").innerText) || 0;
-      const cash = parseFloat(document.getElementById("cashInput").value) || 0;
-      const tag = document.getElementById("drawerChangeText");
+    function quickCash(amt) {
+      const input = document.getElementById("cashGivenInput");
+      const cur = parseFloat(input.value) || 0;
+      input.value = cur + amt;
+      calcChange();
+    }
+
+    function exactCash() {
+      const total = parseFloat(document.getElementById("drawerTotalSum").innerText) || 0;
+      document.getElementById("cashGivenInput").value = total;
+      calcChange();
+    }
+
+    function calcChange() {
+      const s = dict[lang];
+      const total = parseFloat(document.getElementById("drawerTotalSum").innerText) || 0;
+      const cash = parseFloat(document.getElementById("cashGivenInput").value) || 0;
+      const tag = document.getElementById("changeText");
 
       if (cash >= total && total > 0) {
-        tag.innerText = `${t.changePrefix}${(cash - total).toFixed(2)}`;
+        tag.innerText = `${s.changePre}${(cash - total).toFixed(2)}`;
         tag.style.color = "var(--accent)";
       } else if (cash > 0) {
-        tag.innerText = `${t.duePrefix}${(total - cash).toFixed(2)}`;
+        tag.innerText = `${s.duePre}${(total - cash).toFixed(2)}`;
         tag.style.color = "var(--danger)";
       } else {
-        tag.innerText = t.changeText;
-        tag.style.color = "var(--muted)";
+        tag.innerText = s.changeText;
+        tag.style.color = "var(--text-soft)";
       }
     }
 
     function openDrawer() {
-      document.getElementById("cartDrawerOverlay").style.display = "flex";
+      vibrate();
+      const scrim = document.getElementById("drawerScrim");
+      const sheet = document.getElementById("bottomSheet");
+      scrim.style.display = "flex";
+      setTimeout(() => { scrim.classList.add("show"); sheet.classList.add("show"); }, 10);
     }
 
-    function closeDrawer() {
-      document.getElementById("cartDrawerOverlay").style.display = "none";
+    function closeDrawer(e) {
+      if(e && e.target !== document.getElementById("drawerScrim") && e.target.id !== "uiCloseLabel") return;
+      vibrate();
+      const scrim = document.getElementById("drawerScrim");
+      const sheet = document.getElementById("bottomSheet");
+      scrim.classList.remove("show");
+      sheet.classList.remove("show");
+      setTimeout(() => { scrim.style.display = "none"; }, 300);
     }
 
-    function openNewModal() {
-      document.getElementById("customModal").style.display = "flex";
+    // Modal Editor Function
+    function openAddEditModal(idToEdit = null) {
+      vibrate();
+      const modal = document.getElementById("addItemModal");
+      const title = document.getElementById("uiNewItemTitle");
+      
+      if (idToEdit) {
+        title.innerText = lang === "kn" ? "ಐಟಂ ಎಡಿಟ್ ಮಾಡಿ" : "Edit Product";
+        const product = items.find(i => i.id === idToEdit);
+        document.getElementById("editItemId").value = product.id;
+        document.getElementById("addNameEn").value = product.nameEn;
+        document.getElementById("addNameKn").value = product.nameKn || "";
+        document.getElementById("addPrice").value = product.cost;
+        document.getElementById("addHalfPrice").value = product.halfCost || "";
+        document.getElementById("addCat").value = product.catEn || "";
+      } else {
+        title.innerText = dict[lang].newTitle;
+        document.getElementById("editItemId").value = "";
+        document.getElementById("addNameEn").value = "";
+        document.getElementById("addNameKn").value = "";
+        document.getElementById("addPrice").value = "";
+        document.getElementById("addHalfPrice").value = "";
+        document.getElementById("addCat").value = "";
+      }
+      
+      modal.style.display = "flex";
     }
 
-    function closeNewModal() {
-      document.getElementById("customModal").style.display = "none";
-      document.getElementById("itemNameEn").value = "";
-      document.getElementById("itemNameKn").value = "";
-      document.getElementById("itemPrice").value = "";
-      document.getElementById("itemCategory").value = "";
-      document.getElementById("itemPhotoFile").value = "";
+    function closeAddModal() {
+      vibrate();
+      document.getElementById("addItemModal").style.display = "none";
     }
 
-    function submitCustomItem() {
-      const nameEn = document.getElementById("itemNameEn").value.trim();
-      const nameKn = document.getElementById("itemNameKn").value.trim() || nameEn;
-      const price = parseFloat(document.getElementById("itemPrice").value);
-      const cat = document.getElementById("itemCategory").value.trim() || "General";
-      const file = document.getElementById("itemPhotoFile");
+    function saveCustomItem() {
+      const editId = document.getElementById("editItemId").value;
+      const nameEn = document.getElementById("addNameEn").value.trim();
+      const nameKn = document.getElementById("addNameKn").value.trim() || nameEn;
+      const price = parseFloat(document.getElementById("addPrice").value);
+      const halfPrice = parseFloat(document.getElementById("addHalfPrice").value);
+      const cat = document.getElementById("addCat").value.trim() || "General";
 
       if (!nameEn || isNaN(price) || price <= 0) {
-        alert(activeLang === 'kn' ? "ಸರಿಯಾದ ಹೆಸರು ಮತ್ತು ಬೆಲೆ ನಮೂದಿಸಿ." : "Enter valid name and price.");
+        alert(lang === "kn" ? "ಸರಿಯಾದ ಹೆಸರು ಮತ್ತು ಬೆಲೆ ನಮೂದಿಸಿ." : "Enter valid name and price.");
         return;
       }
 
-      const tints = ["#2563eb", "#16a34a", "#d97706", "#dc2626", "#7c3aed", "#0891b2"];
-      const randTint = tints[Math.floor(Math.random() * tints.length)];
-
-      const injectItem = (imgPayload) => {
-        const itemObj = {
-          id: Date.now(),
-          nameEn: nameEn,
-          nameKn: nameKn,
-          cost: price,
-          catEn: cat,
-          catKn: cat,
-          img: imgPayload || "",
-          color: randTint
-        };
-        inventory.unshift(itemObj);
-        persistStock();
-        renderItems(inventory);
-        closeNewModal();
-      };
-
-      if (file.files && file.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => injectItem(e.target.result);
-        reader.readAsDataURL(file.files[0]);
+      if (editId) {
+        // Editing existing item
+        const idInt = parseInt(editId);
+        const idx = items.findIndex(i => i.id === idInt);
+        if (idx !== -1) {
+          items[idx].nameEn = nameEn;
+          items[idx].nameKn = nameKn;
+          items[idx].cost = price;
+          items[idx].catEn = cat;
+          items[idx].catKn = cat;
+          if (!isNaN(halfPrice) && halfPrice > 0) items[idx].halfCost = halfPrice;
+          else delete items[idx].halfCost;
+        }
       } else {
-        injectItem("");
+        // Adding new item
+        const gradients = [
+          "linear-gradient(135deg, #3b82f6, #1d4ed8)", "linear-gradient(135deg, #10b981, #047857)",
+          "linear-gradient(135deg, #f59e0b, #b45309)", "linear-gradient(135deg, #ef4444, #b91c1c)",
+          "linear-gradient(135deg, #8b5cf6, #6d28d9)", "linear-gradient(135deg, #ec4899, #be185d)"
+        ];
+        const randColor = gradients[Math.floor(Math.random() * gradients.length)];
+
+        const newItem = {
+          id: Date.now(), nameEn, nameKn, cost: price, catEn: cat, catKn: cat, color: randColor
+        };
+        if (!isNaN(halfPrice) && halfPrice > 0) newItem.halfCost = halfPrice;
+        
+        items.unshift(newItem);
       }
+
+      localStorage.setItem("pos_inv_final_v4", JSON.stringify(items));
+      renderGrid(items);
+      updateCartUI(); 
+      closeAddModal();
     }
 
-    function triggerReceipt() {
+    function generateBill() {
       const keys = Object.keys(cart);
       if (keys.length === 0) {
-        alert(activeLang === 'kn' ? "ಬಿಲ್ ಮಾಡಲು ಐಟಂ ಸೇರಿಸಿ." : "Add items to generate bill.");
+        alert(lang === "kn" ? "ಬಿಲ್ ಮಾಡಲು ಐಟಂ ಸೇರಿಸಿ." : "Add items to generate bill.");
         return;
       }
 
       let grandTotal = 0;
-      document.getElementById("invoiceRows").innerHTML = keys.map(k => {
+      document.getElementById("invoiceTableBody").innerHTML = keys.map(k => {
         const item = cart[k];
-        const lineTotal = item.qty * item.cost;
+        const lineTotal = item.qty * item._cost;
         grandTotal += lineTotal;
         return `
           <tr>
-            <td>${localizedTitle(item)}</td>
-            <td style="text-align: center;">${item.qty}</td>
-            <td style="text-align: right;">₹${lineTotal}</td>
+            <td style="padding: 8px 0; font-weight: 700; ${item._isHalf ? 'color: var(--warning);' : ''}">${getName(item, item._isHalf)}</td>
+            <td style="text-align: center; padding: 8px 0;">${item.qty}</td>
+            <td style="text-align: right; padding: 8px 0; font-weight: 700;">₹${lineTotal}</td>
           </tr>
         `;
       }).join("");
 
-      const paid = parseFloat(document.getElementById("cashInput").value) || grandTotal;
+      const paid = parseFloat(document.getElementById("cashGivenInput").value) || grandTotal;
       const change = Math.max(0, paid - grandTotal);
 
-      document.getElementById("invoiceClock").innerText = new Date().toLocaleString(activeLang === 'kn' ? 'kn-IN' : 'en-IN');
-      document.getElementById("invoiceFinalTotal").innerText = `₹${grandTotal}`;
-      document.getElementById("invoiceCashPaid").innerText = `₹${paid}`;
-      document.getElementById("invoiceChangeReturned").innerText = `₹${change}`;
-      closeDrawer();
-      document.getElementById("receiptModal").style.display = "flex";
+      document.getElementById("invoiceTimeDisplay").innerText = new Date().toLocaleString(lang === "kn" ? "kn-IN" : "en-IN");
+      document.getElementById("invoiceTotalVal").innerText = `₹${grandTotal}`;
+      document.getElementById("invoicePaidVal").innerText = `₹${paid}`;
+      document.getElementById("invoiceChangeVal").innerText = `₹${change}`;
+
+      closeDrawer({target: document.getElementById("drawerScrim")});
+      setTimeout(() => { document.getElementById("invoiceModal").style.display = "flex"; }, 300);
     }
 
-    function closeReceiptModal() {
-      document.getElementById("receiptModal").style.display = "none";
+    function closeInvoiceModal() {
+      vibrate();
+      document.getElementById("invoiceModal").style.display = "none";
       clearCart();
     }
 
-    renderItems(inventory);
-    renderCart();
+    // Init App
+    renderGrid(items);
+    updateCartUI();
   </script>
 </body>
 </html>
